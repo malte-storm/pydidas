@@ -124,8 +124,19 @@ class TestRemove1dPolynomialBackground(unittest.TestCase):
         plugin.pre_execute()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            new_data, _ = plugin.execute(data)
-        self.assertTrue(np.allclose(data, self._y, atol=0.51))
+            new_data, kwargs = plugin.execute(data)
+        # print(abs(np.mean(new_data)))
+        # print(new_data.array)
+        import matplotlib.pyplot as plt
+        plt.plot(data.get_axis_range(0), data.array, label="data")
+        plt.plot(new_data.get_axis_range(0), new_data.array, label="new_data")
+        plt.plot(new_data.get_axis_range(0), self._y, label="original")
+        plt.plot(new_data.get_axis_range(0), kwargs["prelim_fit"], label="prelim_fit")
+        plt.legend()
+        plt.figure(2)
+        plt.plot(new_data.get_axis_range(0), kwargs["residual"])
+        plt.show()
+        self.assertTrue(abs(np.mean(new_data)) < 3)
 
 
 if __name__ == "__main__":

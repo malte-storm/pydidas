@@ -201,8 +201,9 @@ class Remove1dPolynomialBackground(ProcPlugin):
             local_min = np.insert(local_min, 0, 0)
             local_min = np.insert(local_min, local_min.size, data.size - 1)
 
+        print("local mins", local_min, data[local_min].array)
         _p_prelim = Polynomial.fit(local_min, data[local_min], self._fit_order)
-
+        print("prelim fit", _p_prelim)
         # calculate the residual and fit residual's local minima
         _res = (data - _p_prelim(_x)) / data
         _local_res_min = (
@@ -212,9 +213,13 @@ class Remove1dPolynomialBackground(ProcPlugin):
             )[0]
             + 1
         )
+        kwargs["residual"] = _res
+        kwargs["prelim_fit"] = _p_prelim(_x)
+
         _tmpindices = np.where(_res[_local_res_min] <= 0.002)[0]
         _local_res_min = _local_res_min[_tmpindices]
-
+        print("residual local mins", _local_res_min, _res[_local_res_min].array)
+        print("new local mins", _local_res_min, data[_local_res_min].array)
         _p_final = Polynomial.fit(_local_res_min, data[_local_res_min], self._fit_order)
 
         if self._kernel is not None:
